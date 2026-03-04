@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Отчет по дорогам</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #f6f7fb;
+      color: #111827;
+    }
+    .container {
+      max-width: 760px;
+      margin: 48px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      padding: 22px;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+    }
+    .muted {
+      color: #6b7280;
+      font-size: 14px;
+      margin: 0 0 16px;
+      line-height: 1.4;
+    }
+    form {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    input[type="file"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #111827;
+      color: white;
+      width: fit-content;
+    }
+    .btn:hover { opacity: 0.92; }
+    .note {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+    .alert {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid;
+      line-height: 1.4;
+    }
+    .alert-error {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+    .alert-ok {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+      color: #065f46;
+    }
+    .actions a:not(:last-child)::after {
+      content: "|";
+      margin: 0 12px;
+      color: #9ca3af;
+    }
+    .link {
+      color: #111827;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    .footer {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .req {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+    }
+    .req h2 {
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Отчет по автомобильным дорогам</h1>
+      <p class="muted">
+        Загрузите Excel-файл (.xlsx). После обработки появится ссылка на скачивание Word-отчёта.
+      </p>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Рендерим только поле файла, без лишних оберток -->
+        <div>
+          {{ form.file }}
+          <div class="note">Поддерживается формат: <code>.xlsx</code></div>
+        </div>
+
+        <button class="btn" type="submit">Загрузить и сформировать отчет</button>
+      </form>
+
+      {% if error %}
+        <div class="alert alert-error">
+          <strong>Ошибка:</strong> {{ error }}
+        </div>
+      {% endif %}
+
+      {% if total_length is not None %}
+        <div class="alert alert-ok">
+          <strong>Готово.</strong>
+          Общая протяженность автомобильных дорог составляет <strong>{{ total_length }} км</strong>.
+          <div class="actions">
+            {% if download_url %}
+              <a class="link" href="{{ download_url }}">Скачать Word-отчет</a>
+            {% endif %}
+            <a class="link" href="{% url 'upload_excel' %}">Загрузить другой файл</a>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="req">
+        <h2>Требуемые колонки (строго по порядку)</h2>
+        <ul>
+          <li>№ п/п</li>
+          <li>Наименование</li>
+          <li>Значение автомобильной дороги</li>
+          <li>Категория</li>
+          <li>Протяженность, км</li>
+        </ul>
+      </div>
+
+      <div class="footer">
+        Django + Pandas + python-docx
+      </div>
+    </div>
+  </div>
+</body>
+</html>
